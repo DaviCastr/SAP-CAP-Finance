@@ -1,0 +1,4 @@
+specVersion: "2.5"
+metadata:
+  name: apps.dflc.capfinance.movements.appmovements
+type: application

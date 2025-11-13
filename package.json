@@ -13,5 +13,13 @@
   "scripts": {
     "start": "cds-serve"
   },
-  "private": true
+  "private": true,
+  "sapux": [
+    "app/appcategories",
+    "app/appcategoriests",
+    "app/appwallets",
+    "app/appmovementtypes",
+    "app/appmovements",
+    "app/appmovements"
+  ]
 }

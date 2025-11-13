@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Capabilities.V1.xml">
+        <edmx:Include Alias="Capabilities" Namespace="Org.OData.Capabilities.V1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/Common.xml">
+        <edmx:Include Alias="Common" Namespace="com.sap.vocabularies.Common.v1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml">
+        <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/UI.xml">
+        <edmx:Include Alias="UI" Namespace="com.sap.vocabularies.UI.v1"/>
+    </edmx:Reference>
+    <edmx:DataServices>
+        <Schema Namespace="movements" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+            <EntityContainer Name="EntityContainer">
+                <EntitySet Name="MovementType" EntityType="movements.MovementType"/>
+                <EntitySet Name="Wallets" EntityType="movements.Wallets"/>
+                <EntitySet Name="Categories" EntityType="movements.Categories"/>
+                <EntitySet Name="Movements" EntityType="movements.Movements">
+                    <NavigationPropertyBinding Path="type" Target="MovementType"/>
+                    <NavigationPropertyBinding Path="wallet" Target="Wallets"/>
+                    <NavigationPropertyBinding Path="category" Target="Categories"/>
+                    <NavigationPropertyBinding Path="SiblingEntity" Target="Movements"/>
+                </EntitySet>
+            </EntityContainer>
+            <EntityType Name="MovementType">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="createdAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+                <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+                <Property Name="description" Type="Edm.String" MaxLength="50"/>
+            </EntityType>
+            <EntityType Name="Wallets">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+                <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+                <Property Name="name" Type="Edm.String" MaxLength="50"/>
+                <Property Name="createdAt" Type="Edm.DateTimeOffset"/>
+            </EntityType>
+            <EntityType Name="Categories">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="createdAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+                <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+                <Property Name="name" Type="Edm.String" MaxLength="50"/>
+                <Property Name="icon" Type="Edm.String" MaxLength="30"/>
+                <Property Name="color" Type="Edm.String" MaxLength="10"/>
+            </EntityType>
+            <EntityType Name="Movements">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                    <PropertyRef Name="IsActiveEntity"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="title" Type="Edm.String" MaxLength="50"/>
+                <Property Name="amount" Type="Edm.Decimal" Scale="2" Precision="15"/>
+                <NavigationProperty Name="type" Type="movements.MovementType">
+                    <ReferentialConstraint Property="type_ID" ReferencedProperty="ID"/>
+                </NavigationProperty>
+                <Property Name="type_ID" Type="Edm.Guid"/>
+                <Property Name="type_name" Type="Edm.String" MaxLength="50"/>
+                <NavigationProperty Name="wallet" Type="movements.Wallets">
+                    <ReferentialConstraint Property="wallet_ID" ReferencedProperty="ID"/>
+                </NavigationProperty>
+                <Property Name="wallet_ID" Type="Edm.Guid"/>
+                <Property Name="wallet_name" Type="Edm.String" MaxLength="50"/>
+                <NavigationProperty Name="category" Type="movements.Categories">
+                    <ReferentialConstraint Property="category_ID" ReferencedProperty="ID"/>
+                </NavigationProperty>
+                <Property Name="category_ID" Type="Edm.Guid"/>
+                <Property Name="category_name" Type="Edm.String" MaxLength="50"/>
+                <Property Name="criticality" Type="Edm.Int32"/>
+                <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="true"/>
+                <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+                <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+                <NavigationProperty Name="DraftAdministrativeData" Type="movements.DraftAdministrativeData" ContainsTarget="true"/>
+                <NavigationProperty Name="SiblingEntity" Type="movements.Movements"/>
+            </EntityType>
+            <EntityType Name="DraftAdministrativeData">
+                <Key>
+                    <PropertyRef Name="DraftUUID"/>
+                </Key>
+                <Property Name="DraftUUID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="CreationDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="CreatedByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="DraftIsCreatedByMe" Type="Edm.Boolean"/>
+                <Property Name="LastChangeDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="LastChangedByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="InProcessByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="DraftIsProcessedByMe" Type="Edm.Boolean"/>
+            </EntityType>
+            <Action Name="draftPrepare" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="movements.Movements"/>
+                <Parameter Name="SideEffectsQualifier" Type="Edm.String"/>
+                <ReturnType Type="movements.Movements"/>
+            </Action>
+            <Action Name="draftActivate" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="movements.Movements"/>
+                <ReturnType Type="movements.Movements"/>
+            </Action>
+            <Action Name="draftEdit" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="movements.Movements"/>
+                <Parameter Name="PreserveChanges" Type="Edm.Boolean"/>
+                <ReturnType Type="movements.Movements"/>
+            </Action>
+            <Annotations Target="movements.MovementType/createdAt">
+                <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                <Annotation Term="Core.Immutable" Bool="true"/>
+                <Annotation Term="Core.Computed" Bool="true"/>
+                <Annotation Term="Common.Label" String="{i18n>CreatedAt}"/>
+                </Annotations>
+                <Annotations Target="movements.MovementType/createdBy">
+                    <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                    <Annotation Term="Core.Immutable" Bool="true"/>
+                    <Annotation Term="Core.Computed" Bool="true"/>
+                    <Annotation Term="Core.Description" String="{i18n>UserID.Description}"/>
+                        <Annotation Term="Common.Label" String="{i18n>CreatedBy}"/>
+                        </Annotations>
+                        <Annotations Target="movements.MovementType/modifiedAt">
+                            <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                            <Annotation Term="Core.Computed" Bool="true"/>
+                            <Annotation Term="Common.Label" String="{i18n>ChangedAt}"/>
+                            </Annotations>
+                            <Annotations Target="movements.MovementType/modifiedBy">
+                                <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                <Annotation Term="Core.Computed" Bool="true"/>
+                                <Annotation Term="Core.Description" String="{i18n>UserID.Description}"/>
+                                    <Annotation Term="Common.Label" String="{i18n>ChangedBy}"/>
+                                    </Annotations>
+                                    <Annotations Target="movements.MovementType/description">
+                                        <Annotation Term="Common.Label" String="Description"/>
+                                    </Annotations>
+                                    <Annotations Target="movements.Wallets/createdBy">
+                                        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                        <Annotation Term="Core.Immutable" Bool="true"/>
+                                        <Annotation Term="Core.Computed" Bool="true"/>
+                                        <Annotation Term="Core.Description" String="{i18n>UserID.Description}"/>
+                                            <Annotation Term="Common.Label" String="{i18n>CreatedBy}"/>
+                                            </Annotations>
+                                            <Annotations Target="movements.Wallets/modifiedAt">
+                                                <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                                <Annotation Term="Core.Computed" Bool="true"/>
+                                                <Annotation Term="Common.Label" String="{i18n>ChangedAt}"/>
+                                                </Annotations>
+                                                <Annotations Target="movements.Wallets/modifiedBy">
+                                                    <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                                    <Annotation Term="Core.Computed" Bool="true"/>
+                                                    <Annotation Term="Core.Description" String="{i18n>UserID.Description}"/>
+                                                        <Annotation Term="Common.Label" String="{i18n>ChangedBy}"/>
+                                                        </Annotations>
+                                                        <Annotations Target="movements.Wallets/name">
+                                                            <Annotation Term="Common.Label" String="Name"/>
+                                                        </Annotations>
+                                                        <Annotations Target="movements.Categories/createdAt">
+                                                            <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                                            <Annotation Term="Core.Immutable" Bool="true"/>
+                                                            <Annotation Term="Core.Computed" Bool="true"/>
+                                                            <Annotation Term="Common.Label" String="{i18n>CreatedAt}"/>
+                                                            </Annotations>
+                                                            <Annotations Target="movements.Categories/createdBy">
+                                                                <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                                                <Annotation Term="Core.Immutable" Bool="true"/>
+                                                                <Annotation Term="Core.Computed" Bool="true"/>
+                                                                <Annotation Term="Core.Description" String="{i18n>UserID.Description}"/>
+                                                                    <Annotation Term="Common.Label" String="{i18n>CreatedBy}"/>
+                                                                    </Annotations>
+                                                                    <Annotations Target="movements.Categories/modifiedAt">
+                                                                        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                                                        <Annotation Term="Core.Computed" Bool="true"/>
+                                                                        <Annotation Term="Common.Label" String="{i18n>ChangedAt}"/>
+                                                                        </Annotations>
+                                                                        <Annotations Target="movements.Categories/modifiedBy">
+                                                                            <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                                                            <Annotation Term="Core.Computed" Bool="true"/>
+                                                                            <Annotation Term="Core.Description" String="{i18n>UserID.Description}"/>
+                                                                                <Annotation Term="Common.Label" String="{i18n>ChangedBy}"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Categories/name">
+                                                                                    <Annotation Term="Common.Label" String="Name"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Categories/icon">
+                                                                                    <Annotation Term="Common.Label" String="Icon"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Categories/color">
+                                                                                    <Annotation Term="Common.Label" String="Color"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Movements">
+                                                                                    <Annotation Term="UI.SelectionFields">
+                                                                                        <Collection>
+                                                                                            <PropertyPath>title</PropertyPath>
+                                                                                        </Collection>
+                                                                                    </Annotation>
+                                                                                    <Annotation Term="UI.LineItem">
+                                                                                        <Collection>
+                                                                                            <Record Type="UI.DataField">
+                                                                                                <PropertyValue Property="Value" Path="title"/>
+                                                                                            </Record>
+                                                                                            <Record Type="UI.DataField">
+                                                                                                <PropertyValue Property="Value" Path="amount"/>
+                                                                                                <PropertyValue Property="Criticality" Path="criticality"/>
+                                                                                            </Record>
+                                                                                            <Record Type="UI.DataField">
+                                                                                                <PropertyValue Property="Value" Path="type_name"/>
+                                                                                                <PropertyValue Property="Label" String="Type"/>
+                                                                                            </Record>
+                                                                                            <Record Type="UI.DataField">
+                                                                                                <PropertyValue Property="Value" Path="wallet_name"/>
+                                                                                                <PropertyValue Property="Label" String="Wallet"/>
+                                                                                            </Record>
+                                                                                            <Record Type="UI.DataField">
+                                                                                                <PropertyValue Property="Value" Path="category_name"/>
+                                                                                                <PropertyValue Property="Label" String="Category"/>
+                                                                                            </Record>
+                                                                                        </Collection>
+                                                                                    </Annotation>
+                                                                                    <Annotation Term="UI.Facets">
+                                                                                        <Collection>
+                                                                                            <Record Type="UI.ReferenceFacet">
+                                                                                                <PropertyValue Property="Label" String="Details"/>
+                                                                                                <PropertyValue Property="Target" AnnotationPath="@UI.FieldGroup#Main"/>
+                                                                                            </Record>
+                                                                                        </Collection>
+                                                                                    </Annotation>
+                                                                                    <Annotation Term="UI.FieldGroup" Qualifier="Main">
+                                                                                        <Record Type="UI.FieldGroupType">
+                                                                                            <PropertyValue Property="Data">
+                                                                                                <Collection>
+                                                                                                    <Record Type="UI.DataField">
+                                                                                                        <PropertyValue Property="Value" Path="title"/>
+                                                                                                    </Record>
+                                                                                                    <Record Type="UI.DataField">
+                                                                                                        <PropertyValue Property="Value" Path="amount"/>
+                                                                                                    </Record>
+                                                                                                    <Record Type="UI.DataField">
+                                                                                                        <PropertyValue Property="Value" Path="type_ID"/>
+                                                                                                    </Record>
+                                                                                                    <Record Type="UI.DataField">
+                                                                                                        <PropertyValue Property="Value" Path="wallet_ID"/>
+                                                                                                    </Record>
+                                                                                                    <Record Type="UI.DataField">
+                                                                                                        <PropertyValue Property="Value" Path="category_ID"/>
+                                                                                                    </Record>
+                                                                                                </Collection>
+                                                                                            </PropertyValue>
+                                                                                        </Record>
+                                                                                    </Annotation>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.EntityContainer/Movements">
+                                                                                    <Annotation Term="Capabilities.InsertRestrictions">
+                                                                                        <Record Type="Capabilities.InsertRestrictionsType">
+                                                                                            <PropertyValue Property="Insertable" Bool="true"/>
+                                                                                        </Record>
+                                                                                    </Annotation>
+                                                                                    <Annotation Term="Capabilities.UpdateRestrictions">
+                                                                                        <Record Type="Capabilities.UpdateRestrictionsType">
+                                                                                            <PropertyValue Property="Updatable" Bool="true"/>
+                                                                                        </Record>
+                                                                                    </Annotation>
+                                                                                    <Annotation Term="Capabilities.DeleteRestrictions">
+                                                                                        <Record Type="Capabilities.DeleteRestrictionsType">
+                                                                                            <PropertyValue Property="Deletable" Bool="true"/>
+                                                                                        </Record>
+                                                                                    </Annotation>
+                                                                                    <Annotation Term="Common.DraftRoot">
+                                                                                        <Record Type="Common.DraftRootType">
+                                                                                            <PropertyValue Property="ActivationAction" String="movements.draftActivate"/>
+                                                                                            <PropertyValue Property="EditAction" String="movements.draftEdit"/>
+                                                                                            <PropertyValue Property="PreparationAction" String="movements.draftPrepare"/>
+                                                                                        </Record>
+                                                                                    </Annotation>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Movements/title">
+                                                                                    <Annotation Term="Common.Label" String="Title"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Movements/amount">
+                                                                                    <Annotation Term="Common.Label" String="Amount"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Movements/type">
+                                                                                    <Annotation Term="Common.Label" String="Type"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Movements/type_ID">
+                                                                                    <Annotation Term="Common.ValueList">
+                                                                                        <Record Type="Common.ValueListType">
+                                                                                            <PropertyValue Property="Label" String="Movement Type"/>
+                                                                                            <PropertyValue Property="CollectionPath" String="MovementTypes"/>
+                                                                                            <PropertyValue Property="Parameters">
+                                                                                                <Collection>
+                                                                                                    <Record Type="Common.ValueListParameterInOut">
+                                                                                                        <PropertyValue Property="LocalDataProperty" PropertyPath="type_ID"/>
+                                                                                                        <PropertyValue Property="ValueListProperty" String="ID"/>
+                                                                                                    </Record>
+                                                                                                    <Record Type="Common.ValueListParameterDisplayOnly">
+                                                                                                        <PropertyValue Property="ValueListProperty" String="description"/>
+                                                                                                    </Record>
+                                                                                                </Collection>
+                                                                                            </PropertyValue>
+                                                                                        </Record>
+                                                                                    </Annotation>
+                                                                                    <Annotation Term="Common.Text" Path="type_name">
+                                                                                        <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+                                                                                    </Annotation>
+                                                                                    <Annotation Term="Common.Label" String="Type"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Movements/type_name">
+                                                                                    <Annotation Term="Common.Label" String="Description"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Movements/wallet">
+                                                                                    <Annotation Term="Common.Label" String="Wallet"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Movements/wallet_ID">
+                                                                                    <Annotation Term="Common.ValueList">
+                                                                                        <Record Type="Common.ValueListType">
+                                                                                            <PropertyValue Property="Label" String="Wallet"/>
+                                                                                            <PropertyValue Property="CollectionPath" String="Wallets"/>
+                                                                                            <PropertyValue Property="Parameters">
+                                                                                                <Collection>
+                                                                                                    <Record Type="Common.ValueListParameterInOut">
+                                                                                                        <PropertyValue Property="LocalDataProperty" PropertyPath="wallet_ID"/>
+                                                                                                        <PropertyValue Property="ValueListProperty" String="ID"/>
+                                                                                                    </Record>
+                                                                                                    <Record Type="Common.ValueListParameterDisplayOnly">
+                                                                                                        <PropertyValue Property="ValueListProperty" String="name"/>
+                                                                                                    </Record>
+                                                                                                </Collection>
+                                                                                            </PropertyValue>
+                                                                                        </Record>
+                                                                                    </Annotation>
+                                                                                    <Annotation Term="Common.Text" Path="wallet_name">
+                                                                                        <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+                                                                                    </Annotation>
+                                                                                    <Annotation Term="Common.Label" String="Wallet"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Movements/wallet_name">
+                                                                                    <Annotation Term="Common.Label" String="Name"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Movements/category">
+                                                                                    <Annotation Term="Common.Label" String="Category"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Movements/category_ID">
+                                                                                    <Annotation Term="Common.ValueList">
+                                                                                        <Record Type="Common.ValueListType">
+                                                                                            <PropertyValue Property="Label" String="Category"/>
+                                                                                            <PropertyValue Property="CollectionPath" String="Categories"/>
+                                                                                            <PropertyValue Property="Parameters">
+                                                                                                <Collection>
+                                                                                                    <Record Type="Common.ValueListParameterInOut">
+                                                                                                        <PropertyValue Property="LocalDataProperty" PropertyPath="category_ID"/>
+                                                                                                        <PropertyValue Property="ValueListProperty" String="ID"/>
+                                                                                                    </Record>
+                                                                                                    <Record Type="Common.ValueListParameterDisplayOnly">
+                                                                                                        <PropertyValue Property="ValueListProperty" String="name"/>
+                                                                                                    </Record>
+                                                                                                    <Record Type="Common.ValueListParameterDisplayOnly">
+                                                                                                        <PropertyValue Property="ValueListProperty" String="icon"/>
+                                                                                                    </Record>
+                                                                                                </Collection>
+                                                                                            </PropertyValue>
+                                                                                        </Record>
+                                                                                    </Annotation>
+                                                                                    <Annotation Term="Common.Text" Path="category_name">
+                                                                                        <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+                                                                                    </Annotation>
+                                                                                    <Annotation Term="Common.Label" String="Category"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Movements/category_name">
+                                                                                    <Annotation Term="Core.Computed" Bool="true"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Movements/criticality">
+                                                                                    <Annotation Term="Core.Computed" Bool="true"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Movements/IsActiveEntity">
+                                                                                    <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Movements/HasActiveEntity">
+                                                                                    <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Movements/HasDraftEntity">
+                                                                                    <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.Movements/DraftAdministrativeData">
+                                                                                    <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="movements.DraftAdministrativeData">
+                                                                                    <Annotation Term="Common.Label" String="{i18n>Draft_DraftAdministrativeData}"/>
+                                                                                    </Annotations>
+                                                                                    <Annotations Target="movements.DraftAdministrativeData/DraftUUID">
+                                                                                        <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                                        <Annotation Term="Common.Label" String="{i18n>Draft_DraftUUID}"/>
+                                                                                        </Annotations>
+                                                                                        <Annotations Target="movements.DraftAdministrativeData/CreationDateTime">
+                                                                                            <Annotation Term="Common.Label" String="{i18n>Draft_CreationDateTime}"/>
+                                                                                            </Annotations>
+                                                                                            <Annotations Target="movements.DraftAdministrativeData/CreatedByUser">
+                                                                                                <Annotation Term="Common.Label" String="{i18n>Draft_CreatedByUser}"/>
+                                                                                                </Annotations>
+                                                                                                <Annotations Target="movements.DraftAdministrativeData/DraftIsCreatedByMe">
+                                                                                                    <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                                                    <Annotation Term="Common.Label" String="{i18n>Draft_DraftIsCreatedByMe}"/>
+                                                                                                    </Annotations>
+                                                                                                    <Annotations Target="movements.DraftAdministrativeData/LastChangeDateTime">
+                                                                                                        <Annotation Term="Common.Label" String="{i18n>Draft_LastChangeDateTime}"/>
+                                                                                                        </Annotations>
+                                                                                                        <Annotations Target="movements.DraftAdministrativeData/LastChangedByUser">
+                                                                                                            <Annotation Term="Common.Label" String="{i18n>Draft_LastChangedByUser}"/>
+                                                                                                            </Annotations>
+                                                                                                            <Annotations Target="movements.DraftAdministrativeData/InProcessByUser">
+                                                                                                                <Annotation Term="Common.Label" String="{i18n>Draft_InProcessByUser}"/>
+                                                                                                                </Annotations>
+                                                                                                                <Annotations Target="movements.DraftAdministrativeData/DraftIsProcessedByMe">
+                                                                                                                    <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                                                                    <Annotation Term="Common.Label" String="{i18n>Draft_DraftIsProcessedByMe}"/>
+                                                                                                                    </Annotations>
+                                                                                                                </Schema>
+                                                                                                            </edmx:DataServices>
+                                                                                                        </edmx:Edmx>

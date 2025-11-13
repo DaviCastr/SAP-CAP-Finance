@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Capabilities.V1.xml">
+        <edmx:Include Alias="Capabilities" Namespace="Org.OData.Capabilities.V1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/Common.xml">
+        <edmx:Include Alias="Common" Namespace="com.sap.vocabularies.Common.v1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml">
+        <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/UI.xml">
+        <edmx:Include Alias="UI" Namespace="com.sap.vocabularies.UI.v1"/>
+    </edmx:Reference>
+    <edmx:DataServices>
+        <Schema Namespace="wallets" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+            <EntityContainer Name="EntityContainer">
+                <EntitySet Name="Wallets" EntityType="wallets.Wallets">
+                    <NavigationPropertyBinding Path="SiblingEntity" Target="Wallets"/>
+                </EntitySet>
+            </EntityContainer>
+            <EntityType Name="Wallets">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                    <PropertyRef Name="IsActiveEntity"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+                <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+                <Property Name="name" Type="Edm.String" MaxLength="50"/>
+                <Property Name="createdAt" Type="Edm.DateTimeOffset"/>
+                <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="true"/>
+                <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+                <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+                <NavigationProperty Name="DraftAdministrativeData" Type="wallets.DraftAdministrativeData" ContainsTarget="true"/>
+                <NavigationProperty Name="SiblingEntity" Type="wallets.Wallets"/>
+            </EntityType>
+            <EntityType Name="DraftAdministrativeData">
+                <Key>
+                    <PropertyRef Name="DraftUUID"/>
+                </Key>
+                <Property Name="DraftUUID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="CreationDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="CreatedByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="DraftIsCreatedByMe" Type="Edm.Boolean"/>
+                <Property Name="LastChangeDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="LastChangedByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="InProcessByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="DraftIsProcessedByMe" Type="Edm.Boolean"/>
+            </EntityType>
+            <Action Name="draftPrepare" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="wallets.Wallets"/>
+                <Parameter Name="SideEffectsQualifier" Type="Edm.String"/>
+                <ReturnType Type="wallets.Wallets"/>
+            </Action>
+            <Action Name="draftActivate" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="wallets.Wallets"/>
+                <ReturnType Type="wallets.Wallets"/>
+            </Action>
+            <Action Name="draftEdit" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="wallets.Wallets"/>
+                <Parameter Name="PreserveChanges" Type="Edm.Boolean"/>
+                <ReturnType Type="wallets.Wallets"/>
+            </Action>
+            <Annotations Target="wallets.Wallets">
+                <Annotation Term="UI.SelectionFields">
+                    <Collection>
+                        <PropertyPath>name</PropertyPath>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="UI.LineItem">
+                    <Collection>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="name"/>
+                            <PropertyValue Property="Label" String="Name"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="UI.Facets">
+                    <Collection>
+                        <Record Type="UI.ReferenceFacet">
+                            <PropertyValue Property="Label" String="Wallet Details"/>
+                            <PropertyValue Property="Target" AnnotationPath="@UI.FieldGroup#Main"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="UI.FieldGroup" Qualifier="Main">
+                    <Record Type="UI.FieldGroupType">
+                        <PropertyValue Property="Data">
+                            <Collection>
+                                <Record Type="UI.DataField">
+                                    <PropertyValue Property="Value" Path="name"/>
+                                    <PropertyValue Property="Label" String="Name"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="wallets.EntityContainer/Wallets">
+                <Annotation Term="Capabilities.InsertRestrictions">
+                    <Record Type="Capabilities.InsertRestrictionsType">
+                        <PropertyValue Property="Insertable" Bool="true"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Capabilities.UpdateRestrictions">
+                    <Record Type="Capabilities.UpdateRestrictionsType">
+                        <PropertyValue Property="Updatable" Bool="true"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Capabilities.DeleteRestrictions">
+                    <Record Type="Capabilities.DeleteRestrictionsType">
+                        <PropertyValue Property="Deletable" Bool="true"/>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Common.DraftRoot">
+                    <Record Type="Common.DraftRootType">
+                        <PropertyValue Property="ActivationAction" String="wallets.draftActivate"/>
+                        <PropertyValue Property="EditAction" String="wallets.draftEdit"/>
+                        <PropertyValue Property="PreparationAction" String="wallets.draftPrepare"/>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="wallets.Wallets/createdBy">
+                <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                <Annotation Term="Core.Immutable" Bool="true"/>
+                <Annotation Term="Core.Computed" Bool="true"/>
+                <Annotation Term="Core.Description" String="{i18n>UserID.Description}"/>
+                    <Annotation Term="Common.Label" String="{i18n>CreatedBy}"/>
+                    </Annotations>
+                    <Annotations Target="wallets.Wallets/modifiedAt">
+                        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                        <Annotation Term="Core.Computed" Bool="true"/>
+                        <Annotation Term="Common.Label" String="{i18n>ChangedAt}"/>
+                        </Annotations>
+                        <Annotations Target="wallets.Wallets/modifiedBy">
+                            <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                            <Annotation Term="Core.Computed" Bool="true"/>
+                            <Annotation Term="Core.Description" String="{i18n>UserID.Description}"/>
+                                <Annotation Term="Common.Label" String="{i18n>ChangedBy}"/>
+                                </Annotations>
+                                <Annotations Target="wallets.Wallets/name">
+                                    <Annotation Term="Common.Label" String="Name"/>
+                                </Annotations>
+                                <Annotations Target="wallets.Wallets/IsActiveEntity">
+                                    <Annotation Term="UI.Hidden" Bool="true"/>
+                                </Annotations>
+                                <Annotations Target="wallets.Wallets/HasActiveEntity">
+                                    <Annotation Term="UI.Hidden" Bool="true"/>
+                                </Annotations>
+                                <Annotations Target="wallets.Wallets/HasDraftEntity">
+                                    <Annotation Term="UI.Hidden" Bool="true"/>
+                                </Annotations>
+                                <Annotations Target="wallets.Wallets/DraftAdministrativeData">
+                                    <Annotation Term="UI.Hidden" Bool="true"/>
+                                </Annotations>
+                                <Annotations Target="wallets.DraftAdministrativeData">
+                                    <Annotation Term="Common.Label" String="{i18n>Draft_DraftAdministrativeData}"/>
+                                    </Annotations>
+                                    <Annotations Target="wallets.DraftAdministrativeData/DraftUUID">
+                                        <Annotation Term="UI.Hidden" Bool="true"/>
+                                        <Annotation Term="Common.Label" String="{i18n>Draft_DraftUUID}"/>
+                                        </Annotations>
+                                        <Annotations Target="wallets.DraftAdministrativeData/CreationDateTime">
+                                            <Annotation Term="Common.Label" String="{i18n>Draft_CreationDateTime}"/>
+                                            </Annotations>
+                                            <Annotations Target="wallets.DraftAdministrativeData/CreatedByUser">
+                                                <Annotation Term="Common.Label" String="{i18n>Draft_CreatedByUser}"/>
+                                                </Annotations>
+                                                <Annotations Target="wallets.DraftAdministrativeData/DraftIsCreatedByMe">
+                                                    <Annotation Term="UI.Hidden" Bool="true"/>
+                                                    <Annotation Term="Common.Label" String="{i18n>Draft_DraftIsCreatedByMe}"/>
+                                                    </Annotations>
+                                                    <Annotations Target="wallets.DraftAdministrativeData/LastChangeDateTime">
+                                                        <Annotation Term="Common.Label" String="{i18n>Draft_LastChangeDateTime}"/>
+                                                        </Annotations>
+                                                        <Annotations Target="wallets.DraftAdministrativeData/LastChangedByUser">
+                                                            <Annotation Term="Common.Label" String="{i18n>Draft_LastChangedByUser}"/>
+                                                            </Annotations>
+                                                            <Annotations Target="wallets.DraftAdministrativeData/InProcessByUser">
+                                                                <Annotation Term="Common.Label" String="{i18n>Draft_InProcessByUser}"/>
+                                                                </Annotations>
+                                                                <Annotations Target="wallets.DraftAdministrativeData/DraftIsProcessedByMe">
+                                                                    <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                    <Annotation Term="Common.Label" String="{i18n>Draft_DraftIsProcessedByMe}"/>
+                                                                    </Annotations>
+                                                                </Schema>
+                                                            </edmx:DataServices>
+                                                        </edmx:Edmx>

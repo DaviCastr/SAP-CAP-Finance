@@ -1,0 +1,1 @@
+using movements as service from '../../srv/routes/movements-service';
